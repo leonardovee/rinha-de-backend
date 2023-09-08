@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN go build -o rinha-de-backend ./cmd/api/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o rinha-de-backend ./cmd/api/main.go
 
 FROM alpine:latest
 

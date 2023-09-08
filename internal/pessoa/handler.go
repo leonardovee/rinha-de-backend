@@ -55,7 +55,7 @@ func (h *Handler) GetById(c echo.Context) error {
 func (h *Handler) Post(c echo.Context) error {
 	cpr := new(CreateRequest)
 	if err := c.Bind(cpr); err != nil {
-		return c.String(http.StatusUnprocessableEntity, "")
+		return c.JSON(http.StatusUnprocessableEntity, "")
 	}
 	pessoa, err := h.service.InsertPessoa(c.Request().Context(), cpr)
 	if err != nil {
