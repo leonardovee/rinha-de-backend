@@ -3,8 +3,10 @@ package pessoa
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Repository struct {
@@ -100,13 +102,20 @@ func (r Repository) GetCount() (int, error) {
 	return count, nil
 }
 
-func (r Repository) Insert(pessoa Schema) (Schema, error) {
-	sql := `INSERT INTO pessoas (id, apelido, nome, nascimento, stack) VALUES ($1, $2, $3, $4, $5)`
+func (r Repository) InsertBatch(pessoas []Schema) error {
+	_, err := r.Conn.CopyFrom(
+        context.Background(),
+        pgx.Identifier{"pessoas"},
+        []string{"id", "apelido", "nome", "nascimento", "stack"},
+        pgx.CopyFromSlice(len(pessoas), func (i int) ([]any, error) {
+            p := pessoas[i]
+            return []any{p.ID, p.Apelido, p.Nome, p.Nascimento, p.Stack}, nil
+        }),
+    )
 
-	_, err := r.Conn.Query(context.Background(), sql, pessoa.ID, pessoa.Apelido, pessoa.Nome, pessoa.Nascimento, strings.Join(pessoa.Stack, ", "))
 	if err != nil {
-		return Schema{}, err
+		return err
 	}
 
-	return pessoa, nil
+	return nil 
 }

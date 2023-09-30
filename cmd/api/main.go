@@ -26,12 +26,13 @@ func main() {
 		Addr: os.Getenv("REDIS_URL"),
 	})
 
-	p := pessoa.Setup(pool, cache)
+	ch := make(chan pessoa.Schema)
+	p := pessoa.Setup(pool, cache, ch)
 
 	e := echo.New()
-    e.Use(echoprometheus.NewMiddleware("rinha_de_backend"))
+	e.Use(echoprometheus.NewMiddleware("rinha_de_backend"))
 	e.Use(middleware.Logger())
-    e.GET("/metrics", echoprometheus.NewHandler())
+	e.GET("/metrics", echoprometheus.NewHandler())
 
 	api.Setup(e, &api.Handlers{Pessoa: p})
 

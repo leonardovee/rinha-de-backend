@@ -1,4 +1,4 @@
-ALTER SYSTEM SET max_connections = 1000;
+ALTER SYSTEM SET max_connections = 200;
 ALTER SYSTEM SET shared_buffers TO "375MB";
 ALTER DATABASE postgres SET synchronous_commit=OFF;
 
