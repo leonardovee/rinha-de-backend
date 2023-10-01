@@ -104,18 +104,19 @@ func (r Repository) GetCount() (int, error) {
 
 func (r Repository) InsertBatch(pessoas []Schema) error {
 	_, err := r.Conn.CopyFrom(
-        context.Background(),
-        pgx.Identifier{"pessoas"},
-        []string{"id", "apelido", "nome", "nascimento", "stack"},
-        pgx.CopyFromSlice(len(pessoas), func (i int) ([]any, error) {
-            p := pessoas[i]
-            return []any{p.ID, p.Apelido, p.Nome, p.Nascimento, p.Stack}, nil
-        }),
-    )
+		context.Background(),
+		pgx.Identifier{"pessoas"},
+		[]string{"id", "apelido", "nome", "nascimento", "stack"},
+		pgx.CopyFromSlice(len(pessoas), func(i int) ([]any, error) {
+			p := pessoas[i]
+			stack := strings.Join(p.Stack, ", ")
+			return []any{p.ID, p.Apelido, p.Nome, p.Nascimento, stack}, nil
+		}),
+	)
 
 	if err != nil {
 		return err
 	}
 
-	return nil 
+	return nil
 }

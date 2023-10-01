@@ -8,7 +8,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/redis/go-redis/v9"
 	"leonardovee.com/rinha-de-backend/internal/api"
 	"leonardovee.com/rinha-de-backend/internal/pessoa"
@@ -31,7 +30,7 @@ func main() {
 
 	e := echo.New()
 	e.Use(echoprometheus.NewMiddleware("rinha_de_backend"))
-	e.Use(middleware.Logger())
+	//e.Use(middleware.Logger())
 	e.GET("/metrics", echoprometheus.NewHandler())
 
 	api.Setup(e, &api.Handlers{Pessoa: p})

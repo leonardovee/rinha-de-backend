@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -21,16 +23,19 @@ func NewService(repository *Repository, cache *redis.Client, ch chan Schema) *Se
 
 func (s *Service) BatchInsert() {
 	sl := make([]Schema, 0)
+	ticker := time.NewTicker(time.Second)
 	for {
 		select {
 		case sch := <-s.ch:
-			{
-				sl = append(sl, sch)
+			sl = append(sl, sch)
+		case <-ticker.C:
+			if len(sl) > 0 {
+				err := s.repository.InsertBatch(sl)
+				if err != nil {
+					fmt.Println(err.Error())
+				}
+				sl = make([]Schema, 0)
 			}
-		}
-		if len(sl) >= 100 {
-			s.repository.InsertBatch(sl[0:100])
-			sl = sl[100:]
 		}
 	}
 }

@@ -2,8 +2,10 @@ package pessoa
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo/v4"
 )
 
 type Handler struct {
@@ -55,8 +57,16 @@ func (h *Handler) GetById(c echo.Context) error {
 func (h *Handler) Post(c echo.Context) error {
 	cpr := new(CreateRequest)
 	if err := c.Bind(cpr); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, "")
+		return c.JSON(http.StatusUnprocessableEntity, nil)
 	}
+
+	validate := validator.New()
+	err := validate.Struct(cpr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	err = validate.Struct(cpr)
 	pessoa, err := h.service.InsertPessoa(c.Request().Context(), cpr)
 	if err != nil {
 		if err.Error() == "duplicated entry" {
